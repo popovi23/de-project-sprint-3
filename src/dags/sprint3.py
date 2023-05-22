@@ -108,17 +108,18 @@ args = {
     'email': ['student@example.com'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 0
+    'retries': 5,
+    'retry_delay': timedelta(seconds=30)
 }
 
 business_dt = '{{ ds }}'
 
 with DAG(
-        'sales_mart_3',
+        'sales_mart',
         default_args=args,
-        description='dag for sprint3',
+        description='upload increment data for thr current date',
         catchup=True,
-        start_date=datetime.today() - timedelta(days=7),
+        start_date=datetime.today() - timedelta(days=8),
         end_date=datetime.today() - timedelta(days=1),
 ) as dag:
     generate_report = PythonOperator(
