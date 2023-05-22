@@ -179,7 +179,7 @@ with DAG(
 
     (
             task_add_column
-            >>generate_report
+            >> generate_report
             >> get_report
             >> get_increment
             >> upload_user_order_inc
