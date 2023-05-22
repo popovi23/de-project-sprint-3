@@ -122,6 +122,11 @@ with DAG(
         start_date=datetime.today() - timedelta(days=8),
         end_date=datetime.today() - timedelta(days=1),
 ) as dag:
+    task_add_column = PostgresOperator(
+        task_id='add_column',
+        postgres_conn_id=postgres_conn_id,
+        sql='migrations/add_column.sql')
+
     generate_report = PythonOperator(
         task_id='generate_report',
         python_callable=generate_report)
@@ -146,34 +151,35 @@ with DAG(
     update_d_item_table = PostgresOperator(
         task_id='update_d_item',
         postgres_conn_id=postgres_conn_id,
-        sql="sql/mart.d_item.sql")
+        sql="migrations/mart.d_item.sql")
 
     update_d_customer_table = PostgresOperator(
         task_id='update_d_customer',
         postgres_conn_id=postgres_conn_id,
-        sql="sql/mart.d_customer.sql")
+        sql="migrations/mart.d_customer.sql")
 
     update_d_city_table = PostgresOperator(
         task_id='update_d_city',
         postgres_conn_id=postgres_conn_id,
-        sql="sql/mart.d_city.sql")
+        sql="migrations/mart.d_city.sql")
 
     update_f_sales = PostgresOperator(
         task_id='update_f_sales',
         postgres_conn_id=postgres_conn_id,
-        sql="sql/mart.f_sales.sql",
+        sql="migrations/mart.f_sales.sql",
         parameters={"date": {business_dt}}
     )
 
     populate_f_customer_retention = PostgresOperator(
         task_id='populate_f_customer_retention',
         postgres_conn_id=postgres_conn_id,
-        sql="sql/mart.f_customer_retention.sql",
+        sql="migrations/mart.f_customer_retention.sql",
         parameters={"date": business_dt}
     )
 
     (
-            generate_report
+            task_add_column
+            >>generate_report
             >> get_report
             >> get_increment
             >> upload_user_order_inc
